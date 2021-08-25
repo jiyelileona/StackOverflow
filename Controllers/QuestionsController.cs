@@ -139,8 +139,6 @@ namespace StackOverflow.Controllers
                 return HttpNotFound();
             }
 
-            db.Answers.ToList().ForEach(a => a.IsAcceptedAnswer = false);
-
             answer.IsAcceptedAnswer = answer.IsAcceptedAnswer ? false : true;
             db.SaveChanges();
 
@@ -275,12 +273,11 @@ namespace StackOverflow.Controllers
             if (ModelState.IsValid)
             {
                 question.UserId = User.Identity.GetUserId();
-                question.RelativeTime = DateTime.UtcNow;
+                question.RelativeTime = DateTime.Now;
                 question.Title = viewModel.Title;
+                question.Description = viewModel.Description;
 
                 db.Questions.Add(question);
-
-                var tagList = tags.Split(',');
 
                 foreach (var tag in tags)
                 {
@@ -296,10 +293,10 @@ namespace StackOverflow.Controllers
 
                     qt.QuestionId = question.Id;
                     qt.TagId = t.Id;
-
+                    db.QuestionTags.Add(qt);
                 }
             }
-                db.SaveChanges();
+            db.SaveChanges();
 
             return RedirectToAction("Index");
         }

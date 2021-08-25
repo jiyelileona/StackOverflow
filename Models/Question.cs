@@ -11,8 +11,7 @@ namespace StackOverflow.Models
     {
         public int Id { get; set; }
         [Required(ErrorMessage = "Title is required")]
-        [MaxLength(35, ErrorMessage = "Too long by 35b characters")]
-        [MinLength(15, ErrorMessage = "Title must be at least 15 characters")]
+        [MinLength(10, ErrorMessage = "Title must be at least 10 characters")]
         public string Title { get; set; }
         [AllowHtml]
         [Display(Name="Body")]
