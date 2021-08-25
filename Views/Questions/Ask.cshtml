@@ -1,0 +1,33 @@
+﻿@model StackOverflow.Models.AskQuestionViewModel
+@{
+    ViewBag.Title = "Ask";
+}
+
+<h2>Ask a public question</h2>
+
+@using (Html.BeginForm("Ask", "Questions", FormMethod.Post))
+{
+    @Html.LabelFor(m => m.Title)
+    @Html.TextBoxFor(m => m.Title, new { @class = "form-control", @style = "border-radius: unset" })
+    @Html.ValidationMessageFor(m => m.Title, "", new { @class = "text-danger" })
+    <br />
+    @Html.LabelFor(m => m.Description)
+    @Html.TextBoxFor(m => m.Description)
+    <br />
+    @Html.Label("tags")
+    @Html.TextBox("tags")
+    <br />
+    <input class="btn btn-primary" type="submit" style="font-size: 1.5rem; text-decoration: none; color: white; padding: 0.75rem 1rem" value="Post your question" />
+}
+
+@section scripts {
+    <script>
+        $(".btn-primary").click(function () {
+            if ('@TempData["tagError"]' == "error") {
+                toastr.options.progressBar = true;
+                toastr.options.positionClass = 'toast-top-left';
+                toastr.error('Please enter at least one tag!', 'ERROR!')
+            }
+        })
+    </script>
+}

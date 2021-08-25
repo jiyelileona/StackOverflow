@@ -1,0 +1,33 @@
+﻿@model IEnumerable<StackOverflow.Models.Tag>
+@{
+    ViewBag.Title = "Index";
+}
+
+<div style="display: flex; padding: 24px 0; align-items: center;">
+    <h2 style="flex: 1 auto;">All Tags</h2>
+</div>
+
+<div style="display: grid; grid-gap: 12px; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr))">
+    @foreach (var tag in Model)
+    {
+        <div style="display: flex; flex-direction: column; padding: 12px; border: 1px solid #d6d9dc; border-radius: 3px">
+            <div style="margin-bottom: 12px">
+                <a href='@Url.Action("Tagged", "Questions", new { id = tag.Name })'>
+                    <input type="button" class="btn btn-primary tag" value="@tag.Name" style="font-size: 1.625rem; padding: 3px 6px; color: #38739D; background-color: #E1ECF4; border-color: #00000000" />
+                </a>
+            </div>
+            <div style="margin-bottom: 12px; overflow: hidden; display: -webkit-box; -webkit-line-clamp: 6; -webkit-box-orient: vertical">@tag.Extract</div>
+            <div style="color: #848d95">@tag.Questions.Count questions</div>
+        </div>
+    }
+</div>
+
+@section scripts {
+    <script>
+        $(".tag").hover(function () {
+            $(this).css("background-color", "#d1e5f1");
+        }, function () {
+            $(this).css("background-color", "#E1ECF4")
+        })
+    </script>
+}

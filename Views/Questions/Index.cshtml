@@ -1,0 +1,89 @@
+﻿@model PagedList.IPagedList<StackOverflow.Models.Question>
+@using PagedList.Mvc;
+@using Jdenticon.AspNet.Mvc
+
+@{
+    ViewBag.Title = "Question";
+}
+
+<div style="display: flex; padding: 24px 0; align-items: center;">
+    <h2 style="flex: 1 auto;">All Questions</h2>
+    <button class="btn btn-primary" style="margin-left: 12px">
+        @Html.ActionLink("Ask Questions", "Ask", "Questions", null, new { @style = "font-size: 2rem; text-decoration: none; color: white; padding: 1.5rem 0.5rem" })
+    </button>
+</div>
+
+<div class="btn-group" role="group" aria-label="...">
+    <button type="button" class="btn btn-default">
+        @Html.ActionLink("Hot", "Index", new { sortOrder = ViewBag.HotSortParm })
+        <i class="fas fa-sort"></i>
+    </button>
+    <button type="button" class="btn btn-default">
+        @Html.ActionLink("Recent", "Index", new { sortOrder = ViewBag.DateSortParm })
+        <i class="fas fa-sort"></i>
+    </button>
+</div>
+<br />
+<br />
+
+<ul class="list-group">
+    @foreach (var question in Model)
+    {
+        <li class="list-group-item" style="display: flex">
+            <div style="margin: 0 2rem 0 1rem; text-align: center">
+                <div style="margin-bottom: 1rem">
+                    <strong>@question.VoteScore</strong><br />
+                    votes
+                </div>
+                <div>
+                    <strong>@question.Answers.Count</strong><br />
+                    answers
+                </div>
+            </div>
+                <div style="flex: 1 auto;">
+                    <h4>@Html.ActionLink(question.Title, "Details", "Questions", new { id = question.Id, title = question.Title }, null)</h4>
+                    <div style="float:left">
+                        @foreach (var qtag in question.Tags)
+                        {
+                            <a href='@Url.Action("Tagged", "Questions", new { id = qtag.Tag.Name })'>
+                                <input type="button" class="btn btn-primary tag" data-toggle="tooltip" data-placement="bottom" title="@qtag.Tag.Extract" value="@qtag.Tag.Name" style="font-size: 1.625rem; padding: 3px 6px; color: #38739D; background-color: #E1ECF4; border-color: #00000000"/>
+                            </a>
+                        }
+                    </div>
+                    <div style="float: right; width: 200px">
+                        <div style="padding: 4px 8px">
+                            <div>
+                                asked @question.RelativeTime.Date.ToString("MMM") @question.RelativeTime.Day at @question.RelativeTime.ToString("H:mm")<br />
+                            </div>
+                            <div style="float: left">
+                                @Html.Identicon(question.UserId, 40, alt: "Identicon")
+                            </div>
+                            <div style="width: calc(100% - 40px); float: left">
+                                @question.User.UserName
+                            </div>
+                        </div>
+                    </div>
+                </div>
+        </li>
+    }
+</ul>
+
+<br />
+Page @(Model.PageCount < Model.PageNumber ? 0 : Model.PageNumber) of @Model.PageCount
+
+@Html.PagedListPager(Model, page => Url.Action("Index",
+    new { page, sortOrder = ViewBag.CurrentSort, currentFilter = ViewBag.CurrentFilter }))
+
+@section scripts {
+    <script>
+        $(".tag").hover(function () {
+            $(this).css("background-color", "#d1e5f1");
+        }, function () {
+            $(this).css("background-color", "#E1ECF4")
+        })
+
+        $(function () {
+            $('[data-toggle="tooltip"]').tooltip()
+        })
+    </script>
+}

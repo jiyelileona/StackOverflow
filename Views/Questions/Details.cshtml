@@ -1,0 +1,268 @@
+﻿@model StackOverflow.Models.Question
+@using Jdenticon.AspNet.Mvc
+
+@{
+    ViewBag.Title = "Details";
+    var month = Model.RelativeTime.Date.ToString("MMM");
+    var day = Model.RelativeTime.Day;
+    var time = Model.RelativeTime.ToString("H:mm");
+}
+
+<div style="display: flex; flex: 1 auto; justify-content: space-between; margin-top: 3rem">
+    <h1 style="margin-top: 5px; margin-bottom: 0;">@Model.Title</h1>
+    <div style="display: flex; padding: 1rem 0;">
+        <button class="btn btn-primary" style="margin-left: 12px">
+            @Html.ActionLink("Ask Questions", "Ask", "Questions", null, new { @style = "font-size: 2rem; text-decoration: none; color: white; padding: 1.5rem 0.5rem" })
+        </button>
+    </div>
+</div>
+<div style="border-bottom: 1px solid #e4e6e8; padding-bottom: 1rem;">
+    Asked @ViewBag.DateSubstract
+</div>
+
+<div style="display: grid; grid-template-columns: max-content 1fr; margin-top: 2rem">
+    <div style="        display: flex;
+        flex-direction: column;
+        color: #bbc0c4;
+        padding-right: 2rem;
+">
+        @using (Html.BeginForm("Vote", "Questions", new { qId = Model.Id, isUp = true }, FormMethod.Post))
+        {
+            <button id="questionVoteUp" style="border: none; background: inherit" type="submit">
+                <i class="fas fa-chevron-up" style="font-size: 3.5rem"></i>
+            </button>
+        }
+        <div style="font-size: 3rem; text-align: center; color: #6a737c">@Model.VoteScore</div>
+        @using (Html.BeginForm("Vote", "Questions", new { qId = Model.Id, isUp = false }, FormMethod.Post))
+        {
+            <button id="questionVoteDown" style="border: none; background: inherit" type="submit">
+                <i class="fas fa-chevron-down" style="font-size: 3.5rem"></i>
+            </button>
+        }
+    </div>
+
+    <div>
+        <div style="font-size: 2rem">
+            @Html.Raw(Model.Description)
+        </div>
+        <div style="float: right; width: 280px">
+            <div style="padding: 4px 8px">
+                <div style="color: #6a737c">
+                    asked @month @day at @time<br />
+                </div>
+                <div style="float: left">
+                    @Html.Identicon(Model.UserId, 50, alt: "Identicon")
+                </div>
+                <div style="width: calc(100% - 60px); float: left; margin-left: 8px">
+                    <p style="color: #6a737c; margin-bottom: 0">@Model.User.UserName</p>
+                    <div>
+                        <span style="font-weight: bold; margin-right: 2px; color: #6a737c">@Model.User.Reputation</span>
+                        @if (Model.User.Reputation >= 0)
+                        {
+                            var gold = Math.Floor(Model.User.Reputation / 100.0);
+                            var silver = Math.Floor(Model.User.Reputation / 50.0);
+                            var bronze = Math.Floor(Model.User.Reputation / 10.0);
+                            <span style="margin: 0 3px 0 2px">
+                            <span style="color: #FFCC01; font-size: 2rem; padding: 2px;">&bullet;</span>
+                            <span style="color: #848d95">@gold</span>
+                            </span>
+                            <span style="margin: 0 3px 0 2px">
+                                <span style="color: #B4B8BC; font-size: 2rem; padding: 2px">&bullet;</span>
+                                <span style="color: #848d95">@silver</span>
+                            </span>
+                            <span style="margin: 0 3px 0 2px">
+                                <span style="color: #D1A684; font-size: 2rem; padding: 2px">&bullet;</span>
+                                <span style="color: #848d95">@bronze</span>
+                            </span>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <br />
+    <div>
+        <div class="comments" style="border-top: 1px solid #e4e6e8; margin-top: 20px">
+            <ul style="list-style: none; margin: unset; padding: unset; margin-bottom: 20px">
+                @foreach (var comment in Model.Comments)
+                {
+                    <li style="padding: 6px; border-bottom: 1px solid #eff0f1;">
+                        @comment.Content - @comment.User.UserName
+                        <span>
+                            @comment.RelativeTime.Date.ToString("MMM") @comment.RelativeTime.Day '@comment.RelativeTime.Year at @comment.RelativeTime.ToString("H:mm")
+                        </span>
+                    </li>
+                }
+            </ul>
+        </div>
+        <div>
+            <div class="add-comment" style="color: #bbc0c4">Add a comment</div>
+            @using (Html.BeginForm("Details", "Questions", FormMethod.Post))
+            {
+                @Html.TextBox("qcomment", null, new { @class = "form-control comment", @style = "margin: 6px 0", id = "qcomment" })
+                <button class="btn btn-primary comment" type="submit">Add a comment</button>
+            }
+        </div>
+    </div>
+</div>
+<br />
+<h4 style="margin-bottom: 0; font-size: 2.1rem">@Model.Answers.Count Answers</h4>
+<ul style="list-style: none; margin: unset; padding: unset; margin-bottom: 5px">
+    @foreach (var answer in Model.Answers)
+    {
+        var answerMonth = answer.RelativeTime.Date.ToString("MMM");
+        var answerDay = answer.RelativeTime.Day;
+        var answerTime = answer.RelativeTime.ToString("H:mm");
+        <li style="        display: grid;
+        grid-template-columns: max-content 1fr;
+        padding: 2rem 0;
+        border-bottom: 1px solid #e4e6e8;
+">
+            <div style="        display: flex;
+        flex-direction: column;
+        color: #bbc0c4;
+        padding-right: 2rem;
+">
+                @using (Html.BeginForm("Vote", "Questions", new { qId = Model.Id, aId = answer.Id, isUp = true }, FormMethod.Post))
+                {
+                    <button id="answerVoteUp" style="border: none; background: inherit" type="submit">
+                        <i class="fas fa-chevron-up" style="font-size: 3.5rem"></i>
+                    </button>
+                }
+                <div style="font-size: 3rem; text-align: center; color: #6a737c">@answer.VoteScore</div>
+                @using (Html.BeginForm("Vote", "Questions", new { qId = Model.Id, aId = answer.Id, isUp = false }, FormMethod.Post))
+                {
+                    <button id="answerVoteDown" style="border: none; background: inherit" type="submit">
+                        <i class="fas fa-chevron-down" style="font-size: 3.5rem"></i>
+                    </button>
+                }
+                @if (Model.UserId == (string)ViewData["user"])
+                {
+                    using (Html.BeginForm("AcceptAnswer", "Questions", new { qId = Model.Id, aId = answer.Id }, FormMethod.Post, new { @style = "text-align: center" }))
+                    {
+                        if (answer.IsAcceptedAnswer)
+                        {
+                            <button style="border: none; background: inherit" type="submit">
+
+                                <i class="fas fa-star" style="font-size: 2rem; padding: 5px 0; color: #48A868"></i>
+                            </button>
+                        }
+                        else
+                        {
+                            <button class="acceptAnswer" style="border: none; background: inherit" type="submit">
+                                <i class="fas fa-star" style="font-size: 2rem; padding: 5px 0; color: #48A868; display: none"></i>
+                                <i class="far fa-star" style="font-size: 2rem; padding: 5px 0;"></i>
+                            </button>
+                        }
+                    }
+                }
+            </div>
+
+            <div>
+                <div style="font-size: 2rem">
+                    @Html.Raw(answer.Content)
+                </div>
+                <div style="float: right; width: 280px">
+                    <div style="padding: 4px 8px">
+                        <div style="color: #6a737c">
+                            answered @answerMonth @answerDay at @answerTime<br />
+                        </div>
+                        <div style="float: left">
+                            @Html.Identicon(answer.UserId, 40, alt: "Identicon")
+                        </div>
+                        <div style="width: calc(100% - 60px); float: left; margin-left: 8px">
+                            <p style="color: #6a737c; margin-bottom: 0">@answer.User.UserName</p>
+                            <div>
+                                <span style="font-weight: bold; margin-right: 2px; color: #6a737c">@answer.User.Reputation</span>
+                                @if (answer.User.Reputation >= 0)
+                                {
+                                    var gold = Math.Floor(answer.User.Reputation / 100.0);
+                                    var silver = Math.Floor(answer.User.Reputation / 50.0);
+                                    var bronze = Math.Floor(answer.User.Reputation / 10.0);
+                                    <span style="margin: 0 3px 0 2px">
+                                        <span style="color: #FFCC01; font-size: 2rem; padding: 2px;">&bullet;</span>
+                                        <span style="color: #848d95">@gold</span>
+                                    </span>
+                                    <span style="margin: 0 3px 0 2px">
+                                        <span style="color: #B4B8BC; font-size: 2rem; padding: 2px">&bullet;</span>
+                                        <span style="color: #848d95">@silver</span>
+                                    </span>
+                                    <span style="margin: 0 3px 0 2px">
+                                        <span style="color: #D1A684; font-size: 2rem; padding: 2px">&bullet;</span>
+                                        <span style="color: #848d95">@bronze</span>
+                                    </span>
+                                }
+                            </div>
+                    </div>
+                </div>
+            </div>
+                </div>
+            <br />
+            <div>
+                <div class="comments" style="border-top: 1px solid #e4e6e8; margin-top: 20px">
+                    <ul style="list-style: none; margin: unset; padding: unset; margin-bottom: 20px">
+                        @foreach (var comment in answer.Comments)
+                        {
+                            <li style="padding: 6px; border-bottom: 1px solid #eff0f1;">
+                                @comment.Content - @comment.User.UserName
+                                <span>
+                                    @comment.RelativeTime.Date.ToString("MMM") @comment.RelativeTime.Day '@comment.RelativeTime.Year at @comment.RelativeTime.ToString("H:mm")
+                                </span>
+                            </li>
+                        }
+                    </ul>
+                </div>
+                <div>
+                    <div class="add-comment" style="color: #bbc0c4;">Add a comment</div>
+                    @using (Html.BeginForm("Details", "Questions", FormMethod.Post))
+                    {
+                        @Html.TextBox("acomment", null, new { @class = "form-control comment", @style = "margin: 6px 0", id = "acomment" })
+                        @Html.TextBox("answerId", answer.Id, new { @style = "visibility: hidden; display: none", @type = "number" })
+                        <button class="btn btn-primary comment" type="submit">Add a comment</button>
+                    }
+                </div>
+            </div>
+        </li>
+    }
+</ul>
+<br />
+<div>
+    <h4 style="margin: 20px 0; font-size: 2.1rem; margin-top: 0">Your Answer</h4>
+    @using (Html.BeginForm("Details", "Questions", FormMethod.Post))
+    {
+        @Html.TextBox("answer")
+        <br />
+        <button class="btn btn-primary" type="submit" style="font-size: 1.5rem; text-decoration: none; color: white; padding: 0.75rem 1rem">
+            Post Your Answer
+        </button>
+    }
+</div>
+@section scripts{
+    <script>
+        $(document).ready(function () {
+            $('#questionVoteUp, #questionVoteDown').click(function () {
+                if ('@TempData["questionVoteError"]' != null) {
+                    toastr.options.progressBar = true;
+                    toastr.options.positionClass = 'toast-top-left';
+                    toastr.warning("You can't vote on your question!");
+                }
+            });
+
+            $('#answerVoteUp, #answerVoteDown').click(function () {
+                if ('@TempData["answerVoteError"]' != null) {
+                    toastr.options.progressBar = true;
+                    toastr.options.positionClass = 'toast-top-left';
+                    toastr.warning("You can't vote on your answer!");
+                }
+            });
+
+            $('.acceptAnswer').hover(function () {
+                $(this).find('.fas.fa-star').show();
+                $(this).find('.far.fa-star').hide();
+            }, function () {
+                $(this).find('.fas.fa-star').hide();
+                $(this).find('.far.fa-star').show();
+            });
+        });
+    </script>
+}
